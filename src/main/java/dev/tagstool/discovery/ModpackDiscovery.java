@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 public class ModpackDiscovery {
 
 
-
     public List<Path> getJars(Path modpackPath) {
         BiPredicate<Path, BasicFileAttributes> jarMatcher =
                 (path, attributes) ->
@@ -24,6 +23,7 @@ public class ModpackDiscovery {
             return paths.toList();
         } catch (IOException e) {
             System.out.println("Error finding .jar files: " + e.getMessage());
+            e.printStackTrace();
             return Collections.emptyList();
         }
     }

@@ -6,4 +6,17 @@
   <version>1.0-SNAPSHOT</version>
   <name>Archetype - modpack-tags-tool</name>
   <url>http://maven.apache.org</url>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.tomlj</groupId>
+      <artifactId>tomlj</artifactId>
+      <version>2.2.0</version>
+    </dependency>
+  </dependencies>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 </project>

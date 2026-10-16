@@ -1,9 +1,9 @@
 package dev.tagstool;
 
 import dev.tagstool.discovery.ModpackDiscovery;
-
+import dev.tagstool.scanner.JarScanner;
 import java.nio.file.Path;
-import java.util.List;
+
 
 public class Main {
 
@@ -19,7 +19,10 @@ public class Main {
         System.out.println("Modpack Path: " + modpackPath);
 
         ModpackDiscovery discovery = new ModpackDiscovery();
-        List<Path> jars = discovery.getJars(modpackPath);
+        JarScanner jarScanner = new JarScanner();
+
+        System.out.println(jarScanner.getCommonDefJsons(discovery.getJars(modpackPath)).size());
+        System.out.println(jarScanner.getModDefJsons(discovery.getJars(modpackPath)).size());
     }
 
 }
