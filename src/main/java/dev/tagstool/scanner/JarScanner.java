@@ -13,14 +13,10 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
-import java.util.zip.ZipFile;
 
 
 public class JarScanner {
-    private final Pattern MOD_ID_PATTERN =
-            Pattern.compile("^\\s*modId\\s*=\\s*[\"']([^\"']+)[\"']");
-
+    //Find .json files defining common 'c:' tags
     public List<JarJsonPath> getCommonDefJsons(List<Path> jars) {
         List<JarJsonPath> jsons = new ArrayList<>();
 
@@ -49,6 +45,8 @@ public class JarScanner {
         }
     }
 
+
+    //Find .json files defining each mod's own tags and tag usage
     public List<JarJsonPath> getModDefJsons(List<Path> jars) {
         List<JarJsonPath> jsons = new ArrayList<>();
 
@@ -64,6 +62,7 @@ public class JarScanner {
                         return;
                     }
 
+                    //Find modId from metadata file
                     try (InputStream input = jarFile.getInputStream(metadataEntry);) {
                         TomlParseResult result = Toml.parse(input);
                         TomlArray modsSection = result.getArray("mods");
@@ -86,6 +85,7 @@ public class JarScanner {
                         System.out.println("Unknown error: " + e.getMessage());
                     }
 
+                    //Find .json files within the mod's specific tag directory using its modId
                     while (entries.hasMoreElements()) {
                         JarEntry entry = entries.nextElement();
                         String jsonPath = entry.getName();
