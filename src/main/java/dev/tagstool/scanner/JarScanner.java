@@ -14,33 +14,28 @@ public class JarScanner {
     public List<JarJsonPath> getTagJsons(List<Path> jars) {
         List<JarJsonPath> tagJsons = new ArrayList<>();
 
-        try {
-            jars.forEach(jarPath -> {
-                try (JarFile jar = new JarFile(jarPath.toFile())) {
-                    Enumeration<JarEntry> entries = jar.entries();
+        jars.forEach(jarPath -> {
+            try (JarFile jar = new JarFile(jarPath.toFile())) {
+                Enumeration<JarEntry> entries = jar.entries();
 
-                    while (entries.hasMoreElements()) {
-                        JarEntry entry = entries.nextElement();
-                        String jsonPath = entry.getName();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    String jsonPath = entry.getName();
 
-                        if (!entry.isDirectory()
-                                && jsonPath.startsWith("data/")
-                                && jsonPath.contains("/tags/")
-                                && jsonPath.endsWith(".json")) {
+                    if (!entry.isDirectory()
+                            && jsonPath.startsWith("data/")
+                            && jsonPath.contains("/tags/")
+                            && jsonPath.endsWith(".json")) {
 
-                            tagJsons.add(new JarJsonPath(jarPath, jsonPath));
-                        }
+                        tagJsons.add(new JarJsonPath(jarPath, jsonPath));
                     }
-                } catch (IOException e) {
-                    System.out.println("Error accessing .jar file " + jarPath.getFileName() + ": " + e.getMessage());
                 }
-            });
+            } catch (IOException e) {
+                System.out.println("Error accessing .jar file " + jarPath.getFileName() + ": " + e.getMessage());
+            }
+        });
 
-            return tagJsons;
-        } catch (Exception e){
-            System.out.println("Error searching jar files: " + e.getMessage());
-            return tagJsons;
-        }
+        return tagJsons;
     }
 }
 
