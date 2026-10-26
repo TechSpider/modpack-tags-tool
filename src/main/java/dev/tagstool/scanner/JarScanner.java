@@ -1,6 +1,7 @@
 package dev.tagstool.scanner;
 
 import dev.tagstool.model.JarJsonPath;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -8,7 +9,7 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-
+@Slf4j
 public class JarScanner {
     //Find all tag-defining jsons
     public List<JarJsonPath> getTagJsons(List<Path> jars) {
@@ -31,7 +32,7 @@ public class JarScanner {
                     }
                 }
             } catch (IOException e) {
-                System.out.println("Error accessing .jar file " + jarPath.getFileName() + ": " + e.getMessage());
+                log.error("Error accessing .jar file {}: {}", jarPath.getFileName(), e.getMessage(), e);
             }
         });
 
