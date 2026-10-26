@@ -3,10 +3,10 @@ package dev.tagstool.discovery;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.stream.Stream;
@@ -22,8 +22,7 @@ public class ModpackDiscovery {
         try (Stream<Path> paths = Files.find(modpackPath, Integer.MAX_VALUE, jarMatcher)) {
             return paths.toList();
         } catch (IOException e) {
-            log.error("Error finding .jar files: {}", e.getMessage(), e);
-            return Collections.emptyList();
+            throw new UncheckedIOException("Couldn't find JAR files in given directory", e);
         }
     }
 

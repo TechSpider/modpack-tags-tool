@@ -7,7 +7,9 @@ import dev.tagstool.scanner.JarScanner;
 import dev.tagstool.scanner.JsonScanner;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -18,32 +20,46 @@ public class Main {
         log.info("Welcome to the modpack tags auditor!");
 
 
-        if (args.length == 0) {
-            log.warn("Usage: java -jar modpack-tags-tool.jar \"<modpack-directory>\"");
+        if (args.length != 1) {
+            log.error("Usage: java -jar modpack-tags-tool.jar \"<modpack-directory>\"");
             System.exit(1);
         }
 
-        Path modpackPath = Path.of(args[0]);
+        Path modpackPath;
+
+        try {
+            modpackPath = Path.of(args[0]);
+        } catch (InvalidPathException e) {
+            log.error("Invalid path supplied: {}", args[0], e);
+            System.exit(1);
+            return;
+        }
 
         if (!Files.isDirectory(modpackPath)) {
-            log.warn("Invalid modpack directory: {}", modpackPath);
+            log.error("Invalid modpack directory: {}", modpackPath);
             System.exit(1);
+            return;
         }
 
         log.info("Modpack Path: {}", modpackPath);
 
-        ModpackDiscovery discovery = new ModpackDiscovery();
-        JarScanner jarScanner = new JarScanner();
-        JsonScanner jsonScanner = new JsonScanner();
+        try {
+            ModpackDiscovery discovery = new ModpackDiscovery();
+            JarScanner jarScanner = new JarScanner();
+            JsonScanner jsonScanner = new JsonScanner();
 
-        List<Path> jarPaths = discovery.getJars(modpackPath);
-        log.info("Found {} JAR files in mods directory", jarPaths.size());
+            List<Path> jarPaths = discovery.getJars(modpackPath);
+            log.info("Found {} JAR files in mods directory", jarPaths.size());
 
-        List<JarJsonPath> tagJsons = jarScanner.getTagJsons(jarPaths);
-        log.info("Found {} tag-defining JSON files", tagJsons.size());
+            List<JarJsonPath> tagJsons = jarScanner.getTagJsons(jarPaths);
+            log.info("Found {} tag-defining JSON files", tagJsons.size());
 
-        List<TagDefinition> tagDefinitions = jsonScanner.parseJsons(tagJsons);
-        log.info("Successfully parsed {} tag definitions", tagDefinitions.size());
+            List<TagDefinition> tagDefinitions = jsonScanner.parseJsons(tagJsons);
+            log.info("Successfully parsed {} tag definitions", tagDefinitions.size());
+        } catch (UncheckedIOException e) {
+            log.error("Error analyzing modpack: {}", e.getMessage(), e);
+            System.exit(1);
+        }
     }
 
 }

@@ -32,7 +32,7 @@ public class JarScanner {
                     }
                 }
             } catch (IOException e) {
-                log.error("Error accessing .jar file {}: {}", jarPath.getFileName(), e.getMessage(), e);
+                log.error("Error accessing JAR file {}: {}", jarPath.getFileName(), e.getMessage(), e);
             }
         });
 

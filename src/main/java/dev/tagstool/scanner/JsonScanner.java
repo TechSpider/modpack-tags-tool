@@ -82,7 +82,7 @@ public class JsonScanner {
 
             return new TagDefinition(tagId, jarPath, jsonPath, replaceNode.asBoolean(false), tagEntries);
         } catch (IOException | StringIndexOutOfBoundsException | IllegalArgumentException e) {
-            log.error("Error reading jar file {}: {}", path.jarPath().getFileName(), e.getMessage(), e);
+            log.error("Error reading JAR file {}: {}", path.jarPath().getFileName(), e.getMessage(), e);
             return null;
         }
     }
