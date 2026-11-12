@@ -1,6 +1,6 @@
 package dev.tagstool.scanner;
 
-import dev.tagstool.model.JarJsonPath;
+import dev.tagstool.model.TagJsonPath;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -12,8 +12,8 @@ import java.util.jar.JarFile;
 @Slf4j
 public class JarScanner {
     //Find all tag-defining jsons
-    public List<JarJsonPath> getTagJsons(List<Path> jars) {
-        List<JarJsonPath> tagJsons = new ArrayList<>();
+    public List<TagJsonPath> getTagJsons(List<Path> jars) {
+        List<TagJsonPath> tagJsons = new ArrayList<>();
 
         jars.forEach(jarPath -> {
             try (JarFile jar = new JarFile(jarPath.toFile())) {
@@ -28,7 +28,7 @@ public class JarScanner {
                             && jsonPath.contains("/tags/")
                             && jsonPath.endsWith(".json")) {
 
-                        tagJsons.add(new JarJsonPath(jarPath, jsonPath));
+                        tagJsons.add(new TagJsonPath(jarPath, jsonPath));
                     }
                 }
             } catch (IOException e) {

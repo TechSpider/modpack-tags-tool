@@ -1,7 +1,7 @@
 package dev.tagstool.model;
 
 public record TagEntry(
-        String value,
+        String id,
         boolean isTagReference,
         boolean isRequired
 ) {

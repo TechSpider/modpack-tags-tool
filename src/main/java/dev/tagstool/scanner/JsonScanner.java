@@ -1,6 +1,6 @@
 package dev.tagstool.scanner;
 
-import dev.tagstool.model.JarJsonPath;
+import dev.tagstool.model.TagJsonPath;
 import dev.tagstool.model.TagDefinition;
 import dev.tagstool.model.TagEntry;
 import dev.tagstool.model.TagId;
@@ -10,7 +10,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -19,15 +19,14 @@ import java.util.jar.JarFile;
 public class JsonScanner {
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public TagDefinition parseJson(JarJsonPath path) {
-        try (
-                JarFile jarFile = new JarFile(path.jarPath().toFile());
-                InputStream input = jarFile.getInputStream(jarFile.getJarEntry(path.jsonPath()))
-        ) {
-            String jsonPath = path.jsonPath();
-            Path jarPath = path.jarPath();
+    public TagDefinition parseJson(TagJsonPath path) {
+        String sourceDescription = null;
+        try {
+            String uniformSourcePath = path.sourcePath().toString().replace('\\', '/');
+            String jsonPath = path.jsonPath() == null ? uniformSourcePath : path.jsonPath();
+            sourceDescription = path.jsonPath() == null ? uniformSourcePath : path.sourcePath().getFileName() + "!" + path.jsonPath();
 
-            JsonNode root = mapper.readTree(input);
+            JsonNode root = getRootNode(path);
 
             JsonNode values = root.get("values");
             JsonNode replaceNode = root.path("replace");
@@ -36,7 +35,7 @@ public class JsonScanner {
             List<TagEntry> tagEntries = new ArrayList<>();
 
             if (values == null || !values.isArray()) {
-                log.warn("Missing or invalid values array in {} {}", jarPath.getFileName(), path.jsonPath());
+                log.warn("Missing or invalid values array in {}", sourceDescription);
                 return null;
             }
 
@@ -80,14 +79,14 @@ public class JsonScanner {
                 tagId = new TagId(namespace, tagPath, tagType);
             }
 
-            return new TagDefinition(tagId, jarPath, jsonPath, replaceNode.asBoolean(false), tagEntries);
+            return new TagDefinition(tagId, path.sourcePath(), path.jsonPath(), replaceNode.asBoolean(false), tagEntries);
         } catch (IOException | StringIndexOutOfBoundsException | IllegalArgumentException e) {
-            log.error("Error reading JAR file {}: {}", path.jarPath().getFileName(), e.getMessage(), e);
+            log.error("Error reading JSON from {}: {}", sourceDescription, e.getMessage(), e);
             return null;
         }
     }
 
-    public List<TagDefinition> parseJsons(List<JarJsonPath> paths) {
+    public List<TagDefinition> parseJsons(List<TagJsonPath> paths) {
         List<TagDefinition> definitions = new ArrayList<>();
 
         paths.forEach(path -> {
@@ -99,6 +98,18 @@ public class JsonScanner {
         });
 
         return definitions;
+    }
+
+    private JsonNode getRootNode(TagJsonPath path) throws IOException {
+        if (path.jsonPath() == null) {
+            try (InputStream input = Files.newInputStream(path.sourcePath())) {
+                return mapper.readTree(input);
+            }
+        } else {
+            try (JarFile jarFile = new JarFile(path.sourcePath().toFile()); InputStream input = jarFile.getInputStream(jarFile.getJarEntry(path.jsonPath()))) {
+                return mapper.readTree(input);
+            }
+        }
     }
 
     //Find index of directory following 'str' string within 'jsonPath' path
